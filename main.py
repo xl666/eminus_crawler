@@ -10,10 +10,13 @@ if __name__ == '__main__':
     print(cr.ver_cursos(cursos))
     cr.ir_a_curso(driver, cursos, '94368')
     ac.ir_a_actividades(driver)
-    print(driver.current_url)
-    actividades = ac.regresar_actividades(driver) 
 
-    ac.extraer_respuestas_actividad(driver, actividades, 'contenedor-504270', '/tmp/nuevo')
+    ac.extraer_respuestas_actividades_curso(driver, '/tmp/actividades')
+    
+    #print(driver.current_url)
+    #actividades = ac.regresar_actividades(driver) 
+    
+    #ac.extraer_respuestas_actividad(driver, actividades, 'contenedor-504270', '/tmp/nuevo')
     
     #print(ac.ver_actividades(actividades))
     #ac.ir_a_actividad(driver, actividades, 'contenedor-504270')
@@ -23,8 +26,7 @@ if __name__ == '__main__':
     #print(driver.current_url)
     #texto = ac.regresar_texto_respuesta_alumno(driver)
     #enlaces = ac.regresar_enlaces_archivos_respuesta_alumno(driver)
-    #ac.guardar_actividad_alumno(driver, texto, enlaces, '/tmp/test')
-    
+    #ac.guardar_actividad_alumno(driver, texto, enlaces, '/tmp/test')    
     #ir_a_cursos_terminados(driver)
     #print(driver.current_url)
     #terminados = regresar_cursos(driver)

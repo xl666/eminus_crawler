@@ -21,18 +21,21 @@ def ir_a_actividades(driver):
     tile_actividades = driver.find_element_by_id('tileActividades')
     tile_actividades.click()
     try:
-        WebDriverWait(driver, 10).until_not(
-            lambda browser: browser.current_url == cursos.URL_MAIN)
+        WebDriverWait(driver, 10).until(
+            lambda browser: browser.current_url == URL_ACTIVIDADES)
     except:
         raise Exception('No se pudo tener acceso a las actividades')
 
 def regresar_actividades(driver):
     assert driver.current_url == URL_ACTIVIDADES
-    actividades = driver.find_elements_by_class_name('slActividad')
-    resultado = {}
-    for actividad in actividades:
-        resultado[actividad.get_attribute('id')] = actividad
-    return resultado
+    i = 0
+    while True:
+        # necesario para evitar referencias stale
+        actividades = driver.find_elements_by_class_name('slActividad')
+        if i >= len(actividades):
+            break
+        yield actividades[i]
+        i += 1
 
 def get_nombre_actividad(actividad):
     return actividad.find_element_by_class_name('reltop25').get_attribute("textContent").strip()
@@ -44,12 +47,10 @@ def ver_actividades(actividades):
         salida += '\n' + get_nombre_actividad(actividad)
     return salida
 
-def ir_a_actividad(driver, actividades, pk):
-    if not pk in actividades.keys():
-        raise Exception('La actividad no existe')
+def ir_a_actividad(driver, actividad):
     assert driver.current_url == URL_ACTIVIDADES
-    nombre = get_nombre_actividad(actividades[pk])
-    actividades[pk].find_element_by_class_name('reltop25').click()
+    nombre = get_nombre_actividad(actividad)
+    actividad.find_element_by_class_name('reltop25').click()
     try:
         WebDriverWait(driver, 10).until(
             EC.text_to_be_present_in_element((By.ID, 'lblNombreActividad'), nombre))
@@ -65,16 +66,21 @@ def regresar_alumnos_contestaron_actividad(driver):
     Probablemente sea la forma mas eficiente de implementar
     """
     assert driver.current_url == URL_ACTIVIDADES_ALUMNOS
-    respuesta = {}
     i = 0
+    rehacer_lookup = True
     while True:
         # Es necesario hacerlo asi para evitar referencias stale
-        alumnos = driver.find_elements_by_class_name('DivContenedorDatos')
+        if rehacer_lookup:
+            alumnos = driver.find_elements_by_class_name('DivContenedorDatos')
         if i >= len(alumnos):
             break
+        rehacer_lookup = False
         if not 'rgb(0, 0, 51)' in alumnos[i].find_element_by_tag_name('label').get_attribute("style"):
             yield alumnos[i].get_attribute('id'), alumnos[i]
+            rehacer_lookup = True
+            
         i += 1
+        
 
 def ir_a_respuesta_alumno(driver, alumno):
     assert driver.current_url == URL_ACTIVIDADES_ALUMNOS
@@ -127,23 +133,25 @@ def guardar_actividad_alumno(driver, texto, enlaces, ruta_salida):
     for enlace in enlaces:
         guardar_enlace(driver, enlace, ruta_salida)
     
-
-def extraer_respuestas_actividad(driver, actividades, pk, ruta_salida):
+def crear_ruta(ruta_base, sub_dir):
+    ruta = '%s/%s' % (ruta_base, sub_dir)
+    try:            
+        os.mkdir(ruta)
+        return ruta
+    except FileExistsError:
+        if not os.path.isdir(ruta):
+            raise Exception('No se puede crear directorio para guardar archivos de alumno, la ruta ya existe y no es directorio:%s' % ruta)
+    except Exception:
+        raise Exception('No se puede crear directorio para guardar archivos de alumno')
+        
+def extraer_respuestas_actividad(driver, actividad, ruta_salida):
     """
     Guarda todos los recursos de una actividad creando una estructura de directorios en ruta
     """
     assert driver.current_url == URL_ACTIVIDADES
-    ir_a_actividad(driver, actividades, pk)
+    ir_a_actividad(driver, actividad)
     for matricula, alumno in regresar_alumnos_contestaron_actividad(driver):
-        ruta_alumno = '%s/%s' % (ruta_salida, matricula)
-        try:            
-            os.mkdir(ruta_alumno)
-        except FileExistsError:
-            if not os.path.isdir(ruta_alumno):
-                raise Exception('No se puede crear directorio para guardar archivos de alumno, la ruta ya existe y no es directorio:%s' % ruta_alumno)
-        except Exception:
-            raise Exception('No se puede crear directorio para guardar archivos de alumno')
-            
+        ruta_alumno = crear_ruta(ruta_salida, matricula)
         ir_a_respuesta_alumno(driver, alumno)
         texto = regresar_texto_respuesta_alumno(driver)
         enlaces = regresar_enlaces_archivos_respuesta_alumno(driver)
@@ -155,3 +163,20 @@ def extraer_respuestas_actividad(driver, actividades, pk, ruta_salida):
                 EC.text_to_be_present_in_element((By.ID, 'EtiquetaTitulo1'), 'Actividad'))
         except:
             raise Exception('No se puede acceder a la actividad solicitada')
+
+def extraer_respuestas_actividades_curso(driver, ruta_salida):
+    """
+    Realiza una extraccion de todas las respuestas de todas las actividades de un curso
+    """
+    assert driver.current_url == URL_ACTIVIDADES
+    for actividad in regresar_actividades(driver):
+        nombre = get_nombre_actividad(actividad)
+        ruta_actividad = crear_ruta(ruta_salida, nombre)        
+        extraer_respuestas_actividad(driver, actividad, ruta_actividad)
+        driver.back()
+        driver.refresh()
+        try:
+            WebDriverWait(driver, 10).until(
+                lambda browser: browser.current_url == URL_ACTIVIDADES)
+        except:
+            raise Exception('No se pudo tener acceso a las actividades')
