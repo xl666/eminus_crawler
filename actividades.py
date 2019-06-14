@@ -1,12 +1,17 @@
 
 import cursos
+import texto
+
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
+
 import requests
+
 from collections import namedtuple
 import os
 import copy
+
 
 
 URL_ACTIVIDADES = 'https://eminus.uv.mx/eminus/actividades/centroActividades.aspx'
@@ -94,8 +99,9 @@ def ir_a_respuesta_alumno(driver, alumno):
 
 def regresar_texto_respuesta_alumno(driver):
     assert driver.current_url == URL_ACTIVIDAD_DETALLE
-    texto = driver.find_element_by_id('dvRedaccion').get_attribute("textContent").strip()
-    return texto
+    html = driver.find_element_by_id('dvRedaccion').get_attribute('innerHTML')
+    txt = texto.prettyfy(html) 
+    return txt
 
 def regresar_enlaces_archivos_respuesta_alumno(driver):
     assert driver.current_url == URL_ACTIVIDAD_DETALLE
@@ -143,13 +149,21 @@ def crear_ruta(ruta_base, sub_dir):
             raise Exception('No se puede crear directorio para guardar archivos de alumno, la ruta ya existe y no es directorio:%s' % ruta)
     except Exception:
         raise Exception('No se puede crear directorio para guardar archivos de alumno')
-        
+
+def crear_descripcion_actividad(driver, ruta_salida):
+    driver.current_url == URL_ACTIVIDADES_ALUMNOS
+    descripcion = driver.find_element_by_id('__contenedorDescrip')
+    txt = texto.prettyfy(descripcion.get_attribute('innerHTML'))
+    with open('%s/%s' % (ruta_salida, 'descripcion.txt'), 'w') as archivo:
+        archivo.write(txt)
+    
 def extraer_respuestas_actividad(driver, actividad, ruta_salida):
     """
     Guarda todos los recursos de una actividad creando una estructura de directorios en ruta
     """
     assert driver.current_url == URL_ACTIVIDADES
     ir_a_actividad(driver, actividad)
+    crear_descripcion_actividad(driver, ruta_salida)
     for matricula, alumno in regresar_alumnos_contestaron_actividad(driver):
         ruta_alumno = crear_ruta(ruta_salida, matricula)
         ir_a_respuesta_alumno(driver, alumno)
@@ -169,12 +183,14 @@ def extraer_respuestas_actividades_curso(driver, ruta_salida):
     Realiza una extraccion de todas las respuestas de todas las actividades de un curso
     """
     assert driver.current_url == URL_ACTIVIDADES
+    index = 1
     for actividad in regresar_actividades(driver):
-        nombre = get_nombre_actividad(actividad)
+        nombre = str(index) + '.- ' + get_nombre_actividad(actividad)
         ruta_actividad = crear_ruta(ruta_salida, nombre)        
         extraer_respuestas_actividad(driver, actividad, ruta_actividad)
         driver.back()
         driver.refresh()
+        index += 1
         try:
             WebDriverWait(driver, 10).until(
                 lambda browser: browser.current_url == URL_ACTIVIDADES)
