@@ -1,6 +1,7 @@
 
 import cursos
 import texto
+import entregas
 
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -10,7 +11,6 @@ import requests
 
 from collections import namedtuple
 import os
-import copy
 
 
 
@@ -22,14 +22,8 @@ URL_DESCARGA_RESPUESTA = 'https://eminus.uv.mx/eminus/Recursos.aspx?id=%s&tipo=1
 Enlace = namedtuple('Enlace', 'nombre url')
 
 def ir_a_actividades(driver):
-    assert driver.current_url == cursos.URL_MAIN
-    tile_actividades = driver.find_element_by_id('tileActividades')
-    tile_actividades.click()
-    try:
-        WebDriverWait(driver, 10).until(
-            lambda browser: browser.current_url == URL_ACTIVIDADES)
-    except:
-        raise Exception('No se pudo tener acceso a las actividades')
+    entregas.ir_a_entregas(driver, cursos.URL_MAIN, 'tileActividades', URL_ACTIVIDADES)
+    
 
 def regresar_actividades(driver):
     assert driver.current_url == URL_ACTIVIDADES
