@@ -10,7 +10,7 @@ from selenium.webdriver.common.by import By
 import requests
 
 from collections import namedtuple
-import os
+import os 
 
 
 
@@ -24,61 +24,22 @@ Enlace = namedtuple('Enlace', 'nombre url')
 def ir_a_actividades(driver):
     entregas.ir_a_entregas(driver, cursos.URL_MAIN, 'tileActividades', URL_ACTIVIDADES)
     
-
 def regresar_actividades(driver):
-    assert driver.current_url == URL_ACTIVIDADES
-    i = 0
-    while True:
-        # necesario para evitar referencias stale
-        actividades = driver.find_elements_by_class_name('slActividad')
-        if i >= len(actividades):
-            break
-        yield actividades[i]
-        i += 1
-
-def get_nombre_actividad(actividad):
-    return actividad.find_element_by_class_name('reltop25').get_attribute("textContent").strip()
+    return entregas.regresar_entregas(driver, URL_ACTIVIDADES, 'slActividad')
 
 
-def ver_actividades(actividades):
-    salida = ''
-    for actividad in actividades.values():
-        salida += '\n' + get_nombre_actividad(actividad)
-    return salida
+def get_nombre_actividad(driver, actividad):
+    return entregas.get_nombre_entrega(driver, actividad, URL_ACTIVIDADES)
+
+
+def ver_actividades(driver, actividades):
+    return entregas.ver_entregas(driver, actividades, URL_ACTIVIDADES)
 
 def ir_a_actividad(driver, actividad):
-    assert driver.current_url == URL_ACTIVIDADES
-    nombre = get_nombre_actividad(actividad)
-    actividad.find_element_by_class_name('reltop25').click()
-    try:
-        WebDriverWait(driver, 10).until(
-            EC.text_to_be_present_in_element((By.ID, 'lblNombreActividad'), nombre))
-    except:
-        raise Exception('No se puede acceder a la actividad solicitada')
-    
+    entregas.ir_a_entrega(driver, actividad, URL_ACTIVIDADES)
 
 def regresar_alumnos_contestaron_actividad(driver):
-    """
-    Regresa un generador con los elemenentos asociados a alumnos que contestaron a la actividad
-    Tiene acoplamiento semantico con extraer_respuestas_actividad
-    Necesita que despues de cada yield se regrese a la pagina URL_ACTIVIDADES_ALUMNOS
-    Probablemente sea la forma mas eficiente de implementar
-    """
-    assert driver.current_url == URL_ACTIVIDADES_ALUMNOS
-    i = 0
-    rehacer_lookup = True
-    while True:
-        # Es necesario hacerlo asi para evitar referencias stale
-        if rehacer_lookup:
-            alumnos = driver.find_elements_by_class_name('DivContenedorDatos')
-        if i >= len(alumnos):
-            break
-        rehacer_lookup = False
-        if not 'rgb(0, 0, 51)' in alumnos[i].find_element_by_tag_name('label').get_attribute("style"):
-            yield alumnos[i].get_attribute('id'), alumnos[i]
-            rehacer_lookup = True
-            
-        i += 1
+    return entregas.regresar_alumnos_contestaron_entrega(driver, URL_ACTIVIDADES_ALUMNOS)
         
 
 def ir_a_respuesta_alumno(driver, alumno):
@@ -179,8 +140,8 @@ def extraer_respuestas_actividades_curso(driver, ruta_salida):
     assert driver.current_url == URL_ACTIVIDADES
     index = 1
     for actividad in regresar_actividades(driver):
-        nombre = str(index) + '.- ' + get_nombre_actividad(actividad)
-        ruta_actividad = crear_ruta(ruta_salida, nombre)        
+        nombre = str(index) + '.- ' + get_nombre_actividad(driver, actividad)
+        ruta_actividad = crear_ruta(ruta_salida, nombre)
         extraer_respuestas_actividad(driver, actividad, ruta_actividad)
         driver.back()
         driver.refresh()
