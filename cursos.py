@@ -55,9 +55,21 @@ def regresar_cursos(driver):
 
 def ver_cursos(cursos):
     salida = ''
+    fecha_cursos = {}
     for curso in cursos.values():
         # no se usa directo text porque no muestra hidden
-        salida += '\n' + curso.find_element_by_class_name('AreaTitulo').get_attribute("textContent")
+        nombre = curso.find_element_by_class_name('AreaTitulo').get_attribute("textContent")
+        fecha = curso.find_element_by_class_name('fechaCurso').get_attribute("textContent")
+
+        if not fecha in fecha_cursos.keys():
+            fecha_cursos[fecha] = [nombre]
+        else:
+            fecha_cursos[fecha].append(nombre)
+            
+    for fe in sorted(fecha_cursos.keys()):
+        salida += '\n%s:\n' % fe
+        for curso in fecha_cursos[fe]:
+            salida += '     %s\n' % curso 
     return salida
 
 def esta_seleccionado_curso(curso):

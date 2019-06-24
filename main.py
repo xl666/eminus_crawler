@@ -10,9 +10,9 @@ if __name__ == '__main__':
     login.login(driver, os.environ.get('user'), os.environ.get('pass'))
     cursos = cr.regresar_cursos(driver)
     print(cr.ver_cursos(cursos))
-    cr.ir_a_curso(driver, cursos, '94368')
-    ev.ir_a_evaluaciones(driver)
-    ev.extraer_respuestas_evaluaciones_curso(driver, '/tmp/evaluaciones')
+    #cr.ir_a_curso(driver, cursos, '94368')
+    #ev.ir_a_evaluaciones(driver)
+    #ev.extraer_respuestas_evaluaciones_curso(driver, '/tmp/evaluaciones')
     
     #ac.ir_a_actividades(driver)
     #ac.extraer_respuestas_actividades_curso(driver, '/tmp/actividades')
