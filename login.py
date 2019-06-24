@@ -1,20 +1,10 @@
 
-from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 import time
 
 URL_LOGIN = 'https://eminus.uv.mx/eminus/default.aspx'
-
-
-def configure():
-    options = webdriver.ChromeOptions()
-    options.binary_location = '/usr/bin/chromium'
-    options.add_argument('headless')
-    options.add_argument('window-size=1800x1024')
-    driver = webdriver.Chrome(chrome_options=options)
-    return driver
 
 def login(driver, user, pwd):
     driver.get(URL_LOGIN)    

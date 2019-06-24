@@ -3,9 +3,10 @@ import cursos as cr
 import evaluaciones as ev
 import actividades as ac
 import os
+import config
 
 if __name__ == '__main__':            
-    driver = login.configure()
+    driver = config.configure()
     login.login(driver, os.environ.get('user'), os.environ.get('pass'))
     cursos = cr.regresar_cursos(driver)
     print(cr.ver_cursos(cursos))

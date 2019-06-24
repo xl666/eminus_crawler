@@ -39,4 +39,4 @@ def extraer_respuestas_evaluacion(driver, evaluacion, ruta_salida):
     entregas.extraer_respuestas_entrega(driver, evaluacion, ruta_salida, URL_EVALUACIONES_ALUMNOS, URL_EVALUACIONES_ALUMNOS, URL_EVALUACION_DETALLE, 'Evaluaci')
 
 def extraer_respuestas_evaluaciones_curso(driver, ruta_salida):
-    entregas.extraer_respuestas_entregas_curso(driver, ruta_salida, URL_EVALUACIONES, URL_EVALUACIONES_ALUMNOS, URL_EVALUACION_DETALLE, 'Evaluaci', 'slEvaluacion')
+    entregas.extraer_respuestas_entregas_curso(driver, ruta_salida, URL_EVALUACIONES, URL_EVALUACIONES_ALUMNOS, URL_EVALUACION_DETALLE, 'Evaluación', 'slEvaluacion')

@@ -4,6 +4,7 @@ Modulo para extraer todo lo que tienen en comun las actividades y las evaluacion
 
 import cursos
 import texto
+import salidas
 
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -152,6 +153,7 @@ def crear_ruta(ruta_base, sub_dir):
     except FileExistsError:
         if not os.path.isdir(ruta):
             raise Exception('No se puede crear directorio para guardar archivos de alumno, la ruta ya existe y no es directorio:%s' % ruta)
+        raise Exception('No se puede crear directorio %s, ya existe' % ruta)
     except Exception:
         raise Exception('No se puede crear directorio para guardar archivos de alumno')
 
@@ -170,6 +172,7 @@ def extraer_respuestas_entrega(driver, entrega, ruta_salida, urlCurrent, urlStep
     ir_a_entrega(driver, entrega, urlCurrent)
     crear_descripcion_entrega(driver, ruta_salida, urlStep2)
     for matricula, alumno in regresar_alumnos_contestaron_entrega(driver, urlStep2):
+        salidas.imprimir_salida('Extrayendo respuesta de %s' % matricula, 2)
         ruta_alumno = crear_ruta(ruta_salida, matricula)
         ir_a_respuesta_alumno(driver, alumno, urlStep2)
         texto = regresar_texto_respuesta_alumno(driver, urlStep3)
@@ -190,10 +193,11 @@ def extraer_respuestas_entregas_curso(driver, ruta_salida, urlCurrent, urlStep2,
     """
     assert driver.current_url == urlCurrent
     index = 1
-    for actividad in regresar_entregas(driver, urlCurrent, cssClassEntrega):
-        nombre = str(index) + '.- ' + get_nombre_entrega(driver, actividad, urlCurrent)
+    for entrega in regresar_entregas(driver, urlCurrent, cssClassEntrega):
+        nombre = str(index) + '.- ' + get_nombre_entrega(driver, entrega, urlCurrent)
+        salidas.imprimir_salida('Extrayendo datos de %s: %s' % (etiqueta, nombre), 1)
         ruta_entrega = crear_ruta(ruta_salida, nombre)
-        extraer_respuestas_entrega(driver, actividad, ruta_entrega, urlCurrent, urlStep2, urlStep3, etiqueta)
+        extraer_respuestas_entrega(driver, entrega, ruta_entrega, urlCurrent, urlStep2, urlStep3, etiqueta)
         driver.back()
         driver.refresh()
         index += 1
