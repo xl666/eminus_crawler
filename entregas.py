@@ -5,6 +5,7 @@ Modulo para extraer todo lo que tienen en comun las actividades y las evaluacion
 import cursos
 import texto
 import salidas
+import excepciones
 
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -27,7 +28,7 @@ def ir_a_entregas(driver, urlCurrent, idTitulo, urlNext):
         WebDriverWait(driver, 10).until(
             lambda browser: browser.current_url == urlNext)
     except:
-        raise Exception('No se pudo tener acceso al elemento')
+        raise excepciones.EntregasException('No se pudo tener acceso al elemento')
 
 def regresar_entregas(driver, urlCurrent, cssClassEntrega):
     assert driver.current_url == urlCurrent
@@ -59,7 +60,7 @@ def ir_a_entrega(driver, entrega, urlCurrent):
         WebDriverWait(driver, 10).until(
             EC.text_to_be_present_in_element((By.ID, 'lblNombreActividad'), nombre))
     except:
-        raise Exception('No se puede acceder a la entrega solicitada')
+        raise excepciones.EntregasException('No se puede acceder a la entrega solicitada')
 
 
 def alumno_contesto_entrega(alumno):
@@ -99,7 +100,7 @@ def ir_a_respuesta_alumno(driver, alumno, urlCurrent):
         WebDriverWait(driver, 10).until(
             EC.presence_of_element_located((By.CLASS_NAME, 'contenedorIntegranteEnc')))
     except:
-        raise Exception('No se pudo acceder al detalle de la entrega del alumno')
+        raise excepciones.EntregasException('No se pudo acceder al detalle de la entrega del alumno')
 
 
 def regresar_texto_respuesta_alumno(driver, urlCurrent):
@@ -152,10 +153,10 @@ def crear_ruta(ruta_base, sub_dir):
         return ruta
     except FileExistsError:
         if not os.path.isdir(ruta):
-            raise Exception('No se puede crear directorio para guardar archivos de alumno, la ruta ya existe y no es directorio:%s' % ruta)
-        raise Exception('No se puede crear directorio %s, ya existe' % ruta)
+            raise excepciones.RutaException('No se puede crear directorio para guardar archivos de alumno, la ruta ya existe y no es directorio:%s' % ruta)
+        raise excepciones.RutaException('No se puede crear directorio %s, ya existe' % ruta)
     except Exception:
-        raise Exception('No se puede crear directorio para guardar archivos de alumno')
+        raise excepciones.RutaException('No se puede crear directorio para guardar archivos de alumno')
 
 def crear_descripcion_entrega(driver, ruta_salida, urlCurrent):
     driver.current_url == urlCurrent
@@ -184,7 +185,7 @@ def extraer_respuestas_entrega(driver, entrega, ruta_salida, urlCurrent, urlStep
             WebDriverWait(driver, 10).until(
                 EC.text_to_be_present_in_element((By.ID, 'EtiquetaTitulo1'), etiqueta))
         except:
-            raise Exception('No se puede acceder a la entrega solicitada')
+            raise excepciones.EntregasException('No se puede acceder a la entrega solicitada')
 
 
 def extraer_respuestas_entregas_curso(driver, ruta_salida, urlCurrent, urlStep2, urlStep3, etiqueta, cssClassEntrega):
@@ -205,4 +206,4 @@ def extraer_respuestas_entregas_curso(driver, ruta_salida, urlCurrent, urlStep2,
             WebDriverWait(driver, 10).until(
                 lambda browser: browser.current_url == urlCurrent)
         except:
-            raise Exception('No se pudo tener acceso a las entregas')
+            raise excepciones.EntregasException('No se pudo tener acceso a las entregas')

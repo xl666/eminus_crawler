@@ -1,3 +1,5 @@
+import excepciones
+
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
@@ -15,8 +17,8 @@ def ciclar_cursos_hasta(driver, etiqueta):
             try:
                 WebDriverWait(driver, 10).until(
                     lambda useless: anterior != tipo_listado.text)
-            except Exception as err:
-                raise Exception('No se pudo ciclar los tipos de cursos')
+            except:
+                raise excepciones.CursosException('No se pudo ciclar los tipos de cursos')
 
 def ciclar_cursos_hasta_vigentes(driver):
     ciclar_cursos_hasta(driver, 'Cursos vigentes')
@@ -32,7 +34,7 @@ def ir_a_cursos_vigentes(driver):
                 EC.text_to_be_present_in_element((By.ID, 'lblTotalCursos'), 'Mostrando'))
             time.sleep(1)
         except Exception as err:
-            raise Exception('No se pudo regresar a los cursos vigentes')
+            raise excepciones.CursosException('No se pudo regresar a los cursos vigentes')
     else:
         ciclar_cursos_hasta_vigentes()
 
@@ -79,5 +81,5 @@ def ir_a_curso(driver, cursos, pk):
     try:
         WebDriverWait(driver, 10).until(
             lambda useless : esta_seleccionado_curso(cursos[pk]))
-    except Exception as err:
-        raise Exception('No se pudo tener acceso al curso')
+    except:
+        raise excepciones.CursosException('No se pudo tener acceso al curso')
