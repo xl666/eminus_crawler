@@ -158,6 +158,10 @@ def crear_ruta(ruta_base, sub_dir):
     except Exception:
         raise excepciones.RutaException('No se puede crear directorio para guardar archivos de alumno')
 
+def crear_screenshot_entrega(driver, ruta_salida, urlCurrent):
+    driver.current_url == urlCurrent
+    driver.save_screenshot('%s/%s' % (ruta_salida, 'screenshot.png'))
+    
 def crear_descripcion_entrega(driver, ruta_salida, urlCurrent):
     driver.current_url == urlCurrent
     descripcion = driver.find_element_by_id('__contenedorDescrip')
@@ -171,6 +175,7 @@ def extraer_respuestas_entrega(driver, entrega, ruta_salida, urlCurrent, urlStep
     """
     assert driver.current_url == urlCurrent
     ir_a_entrega(driver, entrega, urlCurrent)
+    crear_screenshot_entrega(driver, ruta_salida, urlStep2)
     crear_descripcion_entrega(driver, ruta_salida, urlStep2)
     for matricula, alumno in regresar_alumnos_contestaron_entrega(driver, urlStep2):
         salidas.imprimir_salida('Extrayendo respuesta de %s' % matricula, 2)
