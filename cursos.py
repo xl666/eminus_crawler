@@ -4,8 +4,13 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 import time
+import datetime
 
 URL_MAIN = 'https://eminus.uv.mx/eminus/PrincipalEminus.aspx'
+mes_mapping = {'Ene': 1, 'Feb': 2, 'Mar': 3, 'Abr': 4, 'May': 5,
+               'Jun': 6, 'Jul': 7, 'Ago': 8, 'Sep': 9, 'Oct': 10,
+               'Nov': 11, 'Dic': 12}
+
 
 def ciclar_cursos_hasta(driver, etiqueta):
     tipo_listado = driver.find_element_by_id('lbltipoCurso')
@@ -53,6 +58,22 @@ def regresar_cursos(driver):
         resultado[curso.get_attribute('id')] = curso
     return resultado
 
+
+def regresar_date_texto(texto):
+    # Se recibe algo como 27/Jun/2018 - 17/Jul/2018
+    # Solo se considera primera fecha
+    fecha_texto = texto.split('-')[0].strip()
+    partes = fecha_texto.split('/')
+    return datetime.datetime(year=int(partes[2]), month=mes_mapping.get(partes[1]),
+                              day=int(partes[0]))
+
+def ordenar_cursos_fecha(fecha_cursos):
+    llaves = fecha_cursos.keys()
+    fechas = (regresar_date_texto(i) for i in llaves)
+    pares = zip(llaves, fechas)
+    ordenado = sorted(pares, key=lambda x: x[1])
+    return (p[0] for p in ordenado)
+
 def ver_cursos(cursos):
     salida = ''
     fecha_cursos = {}
@@ -66,7 +87,7 @@ def ver_cursos(cursos):
         else:
             fecha_cursos[fecha].append(nombre)
             
-    for fe in sorted(fecha_cursos.keys()):
+    for fe in ordenar_cursos_fecha(fecha_cursos):
         salida += '\n%s:\n' % fe
         for curso in fecha_cursos[fe]:
             salida += '     %s\n' % curso 
