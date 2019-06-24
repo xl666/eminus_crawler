@@ -2,7 +2,6 @@
 Modulo para extraer todo lo que tienen en comun las actividades y las evaluaciones
 """
 
-
 import cursos
 import texto
 

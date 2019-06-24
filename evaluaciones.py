@@ -1,15 +1,5 @@
 import cursos
-import texto
 import entregas
-
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-
-import requests
-
-from collections import namedtuple
-import os
 
 URL_EVALUACIONES = 'https://eminus.uv.mx/eminus/Evaluacion/CentroEvaluacion.aspx'
 URL_EVALUACIONES_ALUMNOS = 'https://eminus.uv.mx/eminus/Evaluacion/IntegrantesActividades.aspx'
@@ -44,3 +34,9 @@ def regresar_enlaces_archivos_respuesta_alumno(driver):
 
 def crear_descripcion_evaluacion(driver, ruta_salida):
     entregas.crear_descripcion_entrega(driver, ruta_salida, URL_EVALUACIONES_ALUMNOS)
+
+def extraer_respuestas_evaluacion(driver, evaluacion, ruta_salida):
+    entregas.extraer_respuestas_entrega(driver, evaluacion, ruta_salida, URL_EVALUACIONES_ALUMNOS, URL_EVALUACIONES_ALUMNOS, URL_EVALUACION_DETALLE, 'Evaluaci')
+
+def extraer_respuestas_evaluaciones_curso(driver, ruta_salida):
+    entregas.extraer_respuestas_entregas_curso(driver, ruta_salida, URL_EVALUACIONES, URL_EVALUACIONES_ALUMNOS, URL_EVALUACION_DETALLE, 'Evaluaci', 'slActividad', 'slEvaluacion')

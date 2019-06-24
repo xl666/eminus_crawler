@@ -1,29 +1,15 @@
-
 import cursos
-import texto
 import entregas
-
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.by import By
-
-import requests
-
-from collections import namedtuple
-import os 
-
-
 
 URL_ACTIVIDADES = 'https://eminus.uv.mx/eminus/actividades/centroActividades.aspx'
 URL_ACTIVIDADES_ALUMNOS = 'https://eminus.uv.mx/eminus/Evaluacion/IntegrantesActividades.aspx'
 URL_ACTIVIDAD_DETALLE = 'https://eminus.uv.mx/eminus/actividades/RevisionActividad.aspx'
 URL_DESCARGA_RESPUESTA = 'https://eminus.uv.mx/eminus/Recursos.aspx?id=%s&tipo=1'
 
-Enlace = namedtuple('Enlace', 'nombre url')
-
 def ir_a_actividades(driver):
     entregas.ir_a_entregas(driver, cursos.URL_MAIN, 'tileActividades', URL_ACTIVIDADES)
     
+
 def regresar_actividades(driver):
     return entregas.regresar_entregas(driver, URL_ACTIVIDADES, 'slActividad')
 
@@ -56,6 +42,7 @@ def regresar_enlaces_archivos_respuesta_alumno(driver):
 
 def crear_descripcion_actividad(driver, ruta_salida):
     entregas.crear_descripcion_entrega(driver, ruta_salida, URL_ACTIVIDADES_ALUMNOS)
+
     
 def extraer_respuestas_actividad(driver, actividad, ruta_salida):
     entregas.extraer_respuestas_entrega(driver, actividad, ruta_salida, URL_ACTIVIDADES, URL_ACTIVIDADES_ALUMNOS, URL_ACTIVIDAD_DETALLE, 'Actividad')
@@ -63,5 +50,3 @@ def extraer_respuestas_actividad(driver, actividad, ruta_salida):
 
 def extraer_respuestas_actividades_curso(driver, ruta_salida):
     entregas.extraer_respuestas_entregas_curso(driver, ruta_salida, URL_ACTIVIDADES, URL_ACTIVIDADES_ALUMNOS, URL_ACTIVIDAD_DETALLE, 'Actividad', 'slActividad')
-    
-
