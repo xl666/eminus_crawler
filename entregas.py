@@ -6,6 +6,7 @@ import cursos
 import texto
 import salidas
 import excepciones
+import almacenamiento
 
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -124,39 +125,17 @@ def regresar_enlaces_archivos_respuesta_alumno(driver, urlCurrent):
         enlaces.append(Enlace(info[0].get_attribute("textContent"),
                               URL_DESCARGA_RESPUESTA % detalles[1]))        
     return enlaces
-
-def guardar_enlace(driver, enlace, ruta):
-    nombre, url = enlace
-    all_cookies = driver.get_cookies()
-    cookies = {}  
-    for s_cookie in all_cookies:
-        cookies[s_cookie["name"]] = s_cookie["value"]
-    
-    respuesta = requests.get(url, cookies=cookies)
-    with open('%s/%s' % (ruta, nombre), 'wb') as archivo:
-        archivo.write(respuesta.content)
     
 
 def guardar_entrega_alumno(driver, texto, enlaces, ruta_salida, urlCurrent):
     assert driver.current_url == urlCurrent
     if texto.strip():
-        with open('%s/%s' % (ruta_salida, 'texto_resputesta.txt'), 'w') as archivo:
-            archivo.write(texto)
+        almacenamiento.guardar_archivo('%s/%s' % (ruta_salida, 'texto_resputesta.txt'), texto)
 
     for enlace in enlaces:
-        guardar_enlace(driver, enlace, ruta_salida)
+        almacenamiento.guardar_enlace(driver, enlace, ruta_salida)
     
-def crear_ruta(ruta_base, sub_dir):
-    ruta = '%s/%s' % (ruta_base, sub_dir)
-    try:            
-        os.mkdir(ruta)
-        return ruta
-    except FileExistsError:
-        if not os.path.isdir(ruta):
-            raise excepciones.RutaException('No se puede crear directorio para guardar archivos de alumno, la ruta ya existe y no es directorio:%s' % ruta)
-        raise excepciones.RutaException('No se puede crear directorio %s, ya existe' % ruta)
-    except Exception:
-        raise excepciones.RutaException('No se puede crear directorio para guardar archivos de alumno')
+
 
 def crear_screenshot_entrega(driver, ruta_salida, urlCurrent):
     driver.current_url == urlCurrent
@@ -166,8 +145,7 @@ def crear_descripcion_entrega(driver, ruta_salida, urlCurrent):
     driver.current_url == urlCurrent
     descripcion = driver.find_element_by_id('__contenedorDescrip')
     txt = texto.prettyfy(descripcion.get_attribute('innerHTML'))
-    with open('%s/%s' % (ruta_salida, 'descripcion.txt'), 'w') as archivo:
-        archivo.write(txt)
+    almacenamiento.guardar_archivo('%s/%s' % (ruta_salida, 'descripcion.txt'), txt)
 
 def extraer_respuestas_entrega(driver, entrega, ruta_salida, urlCurrent, urlStep2, urlStep3, etiqueta):
     """
@@ -179,7 +157,7 @@ def extraer_respuestas_entrega(driver, entrega, ruta_salida, urlCurrent, urlStep
     crear_descripcion_entrega(driver, ruta_salida, urlStep2)
     for matricula, alumno in regresar_alumnos_contestaron_entrega(driver, urlStep2):
         salidas.imprimir_salida('Extrayendo respuesta de %s' % matricula, 2)
-        ruta_alumno = crear_ruta(ruta_salida, matricula)
+        ruta_alumno = almacenamiento.crear_ruta(ruta_salida, matricula)
         ir_a_respuesta_alumno(driver, alumno, urlStep2)
         texto = regresar_texto_respuesta_alumno(driver, urlStep3)
         enlaces = regresar_enlaces_archivos_respuesta_alumno(driver, urlStep3)
@@ -202,7 +180,7 @@ def extraer_respuestas_entregas_curso(driver, ruta_salida, urlCurrent, urlStep2,
     for entrega in regresar_entregas(driver, urlCurrent, cssClassEntrega):
         nombre = str(index) + '.- ' + get_nombre_entrega(driver, entrega, urlCurrent)
         salidas.imprimir_salida('Extrayendo datos de %s: %s' % (etiqueta, nombre), 1)
-        ruta_entrega = crear_ruta(ruta_salida, nombre)
+        ruta_entrega = almacenamiento.crear_ruta(ruta_salida, nombre)
         extraer_respuestas_entrega(driver, entrega, ruta_entrega, urlCurrent, urlStep2, urlStep3, etiqueta)
         driver.back()
         driver.refresh()
