@@ -2,9 +2,11 @@
 import excepciones
 
 import requests
-
+import os
 
 def crear_ruta(ruta_base, sub_dir):
+    if '/' in sub_dir:
+        sub_dir = sub_dir.replace('/', '-')
     ruta = '%s/%s' % (ruta_base, sub_dir)
     try:            
         os.mkdir(ruta)

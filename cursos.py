@@ -1,5 +1,7 @@
 import excepciones
-import entregas
+import evaluaciones
+import actividades
+import almacenamiento
 
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -107,16 +109,45 @@ def get_curso_seleccionado(driver, cursos):
         if esta_seleccionado_curso(cursos[pk]):
             return pk
 
-def ir_a_curso(driver, cursos, pk):
-    seleccionado = get_curso_seleccionado(driver, cursos)
-    if pk == seleccionado:
-        return
-    if not pk in cursos.keys():
-        raise Exception('ID de curso no encontrado')
-    assert driver.current_url == URL_MAIN
-    cursos[pk].click()
+def esperar_carga_curso(driver, curso):
     try:
         WebDriverWait(driver, 10).until(
-            lambda useless : esta_seleccionado_curso(cursos[pk]))
+            lambda useless : esta_seleccionado_curso(curso))
     except:
         raise excepciones.CursosException('No se pudo tener acceso al curso')
+        
+def ir_a_curso(driver, curso):    
+    curso.click()
+    esperar_carga_curso(driver, curso)
+
+
+def regresar_a_curso(driver, pk):
+    driver.back() # siempre que se regresa eminus deselcciona el curso
+    driver.refresh()
+    assert driver.current_url == URL_MAIN
+    try:
+        WebDriverWait(driver, 10).until(
+            EC.text_to_be_present_in_element((By.ID, 'lblTotalCursos'), 'Mostrando'))
+        time.sleep(1)
+    except:
+        raise excepciones.CursosException('No se puede regresar al curso')
+    cursos = regresar_cursos(driver) # es necesario para evitar stale
+    curso = cursos[pk]
+    ir_a_curso(driver, curso)
+    
+    
+def extraer_evidencias_curso(driver, cursos, pk, ruta):
+    if not pk in cursos.keys():
+        raise excepciones.CursosException('No existe el curso %s' % pk)
+    curso = cursos[pk]
+    ir_a_curso(driver, curso) 
+
+    actividades.ir_a_actividades(driver)
+    salida = almacenamiento.crear_ruta(ruta, 'actividades')
+    actividades.extraer_respuestas_actividades_curso(driver, salida)
+    regresar_a_curso(driver, pk)
+
+    evaluaciones.ir_a_evaluaciones(driver)
+    salida = almacenamiento.crear_ruta(ruta, 'evaluaciones')
+    evaluaciones.extraer_respuestas_evaluaciones_curso(driver, salida)
+    regresar_a_curso(driver, pk)
