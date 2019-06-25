@@ -1,4 +1,5 @@
 import excepciones
+import entregas
 
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -52,9 +53,12 @@ def ir_a_cursos_terminados(driver):
         
 def regresar_cursos(driver):
     assert driver.current_url == URL_MAIN
-    vigentes = driver.find_elements_by_class_name('contenedorCurso')
+    cursos = driver.find_elements_by_class_name('contenedorCurso')
     resultado = {}
-    for curso in vigentes:
+    for curso in cursos:
+        perfil = curso.find_element_by_class_name('tipoPerfil').get_attribute("textContent")
+        if perfil != 'Facilitador':
+            continue
         resultado[curso.get_attribute('id')] = curso
     return resultado
 
@@ -81,7 +85,7 @@ def ver_cursos(cursos):
         # no se usa directo text porque no muestra hidden
         nombre = curso.find_element_by_class_name('AreaTitulo').get_attribute("textContent")
         fecha = curso.find_element_by_class_name('fechaCurso').get_attribute("textContent")
-
+        
         if not fecha in fecha_cursos.keys():
             fecha_cursos[fecha] = [nombre]
         else:
