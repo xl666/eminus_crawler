@@ -92,8 +92,11 @@ def ver_cursos(cursos):
     fecha_cursos = {}
     for curso in cursos.values():
         # no se usa directo text porque no muestra hidden
+        identificador = curso.get_attribute('id')
         nombre = get_nombre_curso(curso)
         fecha = get_fecha_curso(curso)
+
+        nombre = 'id:%s %s' % (identificador, nombre)
         
         if not fecha in fecha_cursos.keys():
             fecha_cursos[fecha] = [nombre]
