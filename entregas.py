@@ -156,7 +156,7 @@ def extraer_respuestas_entrega(driver, entrega, ruta_salida, urlCurrent, urlStep
     crear_screenshot_entrega(driver, ruta_salida, urlStep2)
     crear_descripcion_entrega(driver, ruta_salida, urlStep2)
     for matricula, alumno in regresar_alumnos_contestaron_entrega(driver, urlStep2):
-        salidas.imprimir_salida('Extrayendo respuesta de %s' % matricula, 2)
+        salidas.imprimir_salida('Extrayendo respuesta de %s' % matricula, 3)
         ruta_alumno = almacenamiento.crear_ruta(ruta_salida, matricula)
         ir_a_respuesta_alumno(driver, alumno, urlStep2)
         texto = regresar_texto_respuesta_alumno(driver, urlStep3)
@@ -179,7 +179,7 @@ def extraer_respuestas_entregas_curso(driver, ruta_salida, urlCurrent, urlStep2,
     index = 1
     for entrega in regresar_entregas(driver, urlCurrent, cssClassEntrega):
         nombre = str(index) + '.- ' + get_nombre_entrega(driver, entrega, urlCurrent)
-        salidas.imprimir_salida('Extrayendo datos de %s: %s' % (etiqueta, nombre), 1)
+        salidas.imprimir_salida('Extrayendo datos de %s: %s' % (etiqueta, nombre), 2)
         ruta_entrega = almacenamiento.crear_ruta(ruta_salida, nombre)
         extraer_respuestas_entrega(driver, entrega, ruta_entrega, urlCurrent, urlStep2, urlStep3, etiqueta)
         driver.back()

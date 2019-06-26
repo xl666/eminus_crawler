@@ -2,6 +2,7 @@ import excepciones
 import evaluaciones
 import actividades
 import almacenamiento
+import salidas
 
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -80,13 +81,19 @@ def ordenar_cursos_fecha(fecha_cursos):
     ordenado = sorted(pares, key=lambda x: x[1])
     return (p[0] for p in ordenado)
 
+def get_nombre_curso(curso):
+    return curso.find_element_by_class_name('AreaTitulo').get_attribute("textContent")
+
+def get_fecha_curso(curso):
+    return curso.find_element_by_class_name('fechaCurso').get_attribute("textContent")
+
 def ver_cursos(cursos):
     salida = ''
     fecha_cursos = {}
     for curso in cursos.values():
         # no se usa directo text porque no muestra hidden
-        nombre = curso.find_element_by_class_name('AreaTitulo').get_attribute("textContent")
-        fecha = curso.find_element_by_class_name('fechaCurso').get_attribute("textContent")
+        nombre = get_nombre_curso(curso)
+        fecha = get_fecha_curso(curso)
         
         if not fecha in fecha_cursos.keys():
             fecha_cursos[fecha] = [nombre]
@@ -116,12 +123,13 @@ def esperar_carga_curso(driver, curso):
     except:
         raise excepciones.CursosException('No se pudo tener acceso al curso')
         
-def ir_a_curso(driver, curso):    
-    curso.click()
+def ir_a_curso(driver, curso):
+    # si el curso esta paginado o en la parte de abajo, no se le puede dar click directo
+    driver.execute_script("arguments[0].click();", curso)
     esperar_carga_curso(driver, curso)
 
 
-def regresar_a_curso(driver, pk):
+def regresar_a_curso(driver, pk, terminados=False):
     driver.back() # siempre que se regresa eminus deselcciona el curso
     driver.refresh()
     assert driver.current_url == URL_MAIN
@@ -131,12 +139,14 @@ def regresar_a_curso(driver, pk):
         time.sleep(1)
     except:
         raise excepciones.CursosException('No se puede regresar al curso')
+    if terminados:
+        ir_a_cursos_terminados(driver)
     cursos = regresar_cursos(driver) # es necesario para evitar stale
     curso = cursos[pk]
     ir_a_curso(driver, curso)
     
     
-def extraer_evidencias_curso(driver, cursos, pk, ruta):
+def extraer_evidencias_curso(driver, cursos, pk, ruta, terminados=False):
     if not pk in cursos.keys():
         raise excepciones.CursosException('No existe el curso %s' % pk)
     curso = cursos[pk]
@@ -145,9 +155,28 @@ def extraer_evidencias_curso(driver, cursos, pk, ruta):
     actividades.ir_a_actividades(driver)
     salida = almacenamiento.crear_ruta(ruta, 'actividades')
     actividades.extraer_respuestas_actividades_curso(driver, salida)
-    regresar_a_curso(driver, pk)
+    regresar_a_curso(driver, pk, terminados)
 
     evaluaciones.ir_a_evaluaciones(driver)
     salida = almacenamiento.crear_ruta(ruta, 'evaluaciones')
     evaluaciones.extraer_respuestas_evaluaciones_curso(driver, salida)
-    regresar_a_curso(driver, pk)
+    regresar_a_curso(driver, pk, terminados)
+
+def extraer_evidencias_lista_cursos(driver, cursos, lista, ruta, terminados=False):
+    for elemento in lista:
+        curso = cursos[elemento]
+        nombre = get_nombre_curso(curso)
+        salidas.imprimir_salida('Extrayendo datos de curso: %s' % nombre, 1)
+        salida = almacenamiento.crear_ruta(ruta, nombre)
+        extraer_evidencias_curso(driver, cursos, elemento, salida, terminados)
+
+        driver.get(URL_MAIN)
+        try:
+            WebDriverWait(driver, 10).until(
+                EC.text_to_be_present_in_element((By.ID, 'lblTotalCursos'), 'Mostrando'))
+            time.sleep(1)
+        except:
+            raise excepciones.CursosException('No se pudo refrescar página de cursos')
+        if terminados:
+            ir_a_cursos_terminados(driver)
+        cursos = regresar_cursos(driver) # evitar stale
