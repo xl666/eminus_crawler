@@ -40,6 +40,27 @@ def modo_uso():
     print('')
     print('Extraer evidencias de tres cursos terminados:')
     print('    eminus_extractor -e 1000,2000,3000 -t -d /tmp/evidencias')
+
+def validar_ids(cadena):
+    partes = cadena.split(',')
+    for elemento in partes:
+        if not elemento.isnumeric():
+            return False
+    return True
+
+def validar_combinaciones(opcionC, opcionN, opcionL, opcionE, opcionD):
+    if opcionC and True in (opcionN, opcionL, opcionE, opcionD):
+        return False
+    if opcionN and True in (opcionC, opcionL, opcionE, opcionD):
+        return False
+    if opcionL and True in (opcionC, opcionN, opcionE, opcionD):
+        return False
+    
+    return True
+
+def extraer_evidencias(driver, terminados):
+    cursos = cr.regresar_cursos(driver)
+    cr.extraer_evidencias_lista_cursos(driver, cursos, evidencias, directorio, terminados)
     
 if __name__ == '__main__':
 
@@ -49,6 +70,9 @@ if __name__ == '__main__':
     
     options, remainder = getopt.getopt(sys.argv[1:], 'hcnltd:e:', ['help', 'credenciales', 'navegador', 'listar', 'terminados', 'directorio=', 'evidencias='])
 
+    if remainder:
+        modo_uso()
+    
     terminados = False
     directorio = '.'
     evidencias = []
@@ -56,31 +80,37 @@ if __name__ == '__main__':
     opcionL = False
     opcionD = False
     opcionE = False
+    opcionC = False
+    opcionN = False
     
     for opcion, valor in options:
         if opcion in ('-h', '--help'):
             modo_uso()
             exit(0)
         if opcion in ('-c', '--credenciales'):
-            pass
-            exit(0)
+            opcionC = True
         if opcion in ('-n', '--navegador'):
-            pass
-            exit(0)
+            opcionN = True
         if opcion in ('-l', '--listar'):
             opcionL = True
         if opcion in ('-t', '--terminados'):
             terminados = True
         if opcion in ('-d', '--directorio'):
-            pass # validar
+            if not os.path.isdir(valor):
+                print('%s no es un directorio válido' % valor)
+                exit(1)
             opcionD = True
             directorio = valor
         if opcion in ('-e', '--evidencias'):
-            pass # validar
+            if not validar_ids(valor):
+                print('Los ids deben ser números enteros separados por coma, sin espacios')
+                exit(1)
+            opcionE = True
             evidencias = valor.split(',')
 
-    #validar combinaciones de opciones
-    pass
+    if not validar_combinaciones(opcionC, opcionN, opcionL, opcionE, opcionD):
+        modo_uso()
+        exit(1)
 
             
     driver = config.configure()
@@ -88,6 +118,11 @@ if __name__ == '__main__':
 
     if opcionL:            
         listar_cursos(driver, terminados)
+        exit(0)
+
+    if opcionE:
+        extraer_evidencias(driver, terminados)
+        exit(0)
     
     #cr.ir_a_cursos_terminados(driver)
     #cursos = cr.regresar_cursos(driver)
