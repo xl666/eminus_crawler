@@ -13,3 +13,6 @@ class EntregasException(Exception):
 
 class RutaException(Exception):
     pass
+
+class CredencialesException(Exception):
+    pass

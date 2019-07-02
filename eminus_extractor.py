@@ -1,15 +1,25 @@
 #!/usr/bin/env python3
 
+import os
+import sys
+import getopt
+import getpass
+
 import login 
 import cursos as cr
 import evaluaciones as ev
 import actividades as ac
-import os
 import config
-import sys
-import getopt
+import excepciones
+import cifrado
 
-def listar_cursos(driver, terminados=False):    
+BASE_DIR = os.path.dirname((os.path.abspath(__file__)))
+SALT = 'x_39'
+
+def listar_cursos(terminados=False):
+    driver = config.configure()
+    usuario, password = recuperar_credenciales()
+    login.login(driver, usuario, password)
     if terminados:
         cr.ir_a_cursos_terminados(driver)
     cursos = cr.regresar_cursos(driver)
@@ -58,7 +68,43 @@ def validar_combinaciones(opcionC, opcionN, opcionL, opcionE, opcionD):
     
     return True
 
-def extraer_evidencias(driver, terminados):
+def guardar_credenciales(mensaje):
+    try:
+        with open('%s/%s' % (BASE_DIR, 'credenciales.cif'), 'wb') as archivo:
+            archivo.write(mensaje)
+    except:
+        raise excepciones.CredencialesException('No se pudo crear archivo de credenciales en %s/%s' % (BASE_DIR, 'credenciales.cif'))
+
+def crear_credenciales():
+    usuario = input('Usuario eminus: ')
+    password1 = getpass.getpass('Contraseña eminus: ')
+    password2 = getpass.getpass('Repetir contraseña eminus: ')
+    pw1 = getpass.getpass('Frase para recuperar credenciales: ')
+    pw2 = getpass.getpass('Repetir frase: ')
+    if password1 != password2 or pw1 != pw2:
+        raise excepciones.CredencialesException('Los passwords no concuerdan')
+    if ':' in usuario or ':' in password1:
+        raise excepciones.CredencialesException('No se puede usar el caracter :')
+    mensaje = cifrado.cifrar('%s:%s' % (usuario, password1), pw1, SALT)
+    guardar_credenciales(mensaje)
+
+def recuperar_credenciales():
+    try:
+        with open('%s/%s' % (BASE_DIR, 'credenciales.cif'), 'rb') as archivo:
+            contenido = archivo.read()
+            password = getpass.getpass('Frase para recuperar credenciales: ')
+            mensaje = cifrado.descifrar(contenido, password, SALT)
+            mensaje = mensaje.decode('utf-8')
+            usuario, pw = mensaje.split(':')
+            return usuario, pw
+    except Exception as err:
+        print(err)
+        raise excepciones.CredencialesException('No se encontró el archivo credenciales.cif')
+
+def extraer_evidencias(terminados):
+    driver = config.configure()
+    usuario, password = recuperar_credenciales()
+    login.login(driver, usuario, password)
     cursos = cr.regresar_cursos(driver)
     cr.extraer_evidencias_lista_cursos(driver, cursos, evidencias, directorio, terminados)
     
@@ -112,17 +158,17 @@ if __name__ == '__main__':
         modo_uso()
         exit(1)
 
-            
-    driver = config.configure()
-    login.login(driver, os.environ.get('user'), os.environ.get('pass'))
 
     if opcionL:            
-        listar_cursos(driver, terminados)
+        listar_cursos(terminados)
         exit(0)
 
     if opcionE:
-        extraer_evidencias(driver, terminados)
+        extraer_evidencias(terminados)
         exit(0)
+
+    if opcionC:
+        crear_credenciales()
     
     #cr.ir_a_cursos_terminados(driver)
     #cursos = cr.regresar_cursos(driver)
