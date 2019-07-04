@@ -19,7 +19,7 @@ def login(driver, user, pwd):
     submit.click()
     try:
         WebDriverWait(driver, 10).until(
-            EC.text_to_be_present_in_element((By.ID, 'lblTotalCursos'), 'Mostrando'))
+            EC.presence_of_element_located((By.ID, 'lblTotalCursos')))
         time.sleep(1)
     except:
         driver.close()

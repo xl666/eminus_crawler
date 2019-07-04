@@ -16,15 +16,6 @@ import cifrado
 BASE_DIR = os.path.dirname((os.path.abspath(__file__)))
 SALT = 'x_39'
 
-def listar_cursos(terminados=False):
-    driver = config.configure()
-    usuario, password = recuperar_credenciales()
-    login.login(driver, usuario, password)
-    if terminados:
-        cr.ir_a_cursos_terminados(driver)
-    cursos = cr.regresar_cursos(driver)
-    print(cr.ver_cursos(cursos))
-
 def modo_uso():
     print('eminus_extractor.py [OPCIONES]')
     print('Opciones:')
@@ -101,6 +92,16 @@ def recuperar_credenciales():
         print(err)
         raise excepciones.CredencialesException('No se encontró el archivo credenciales.cif')
 
+
+def listar_cursos(terminados=False):
+    driver = config.configure()
+    usuario, password = recuperar_credenciales()
+    login.login(driver, usuario, password)
+    if terminados:
+        cr.ir_a_cursos_terminados(driver)
+    cursos = cr.regresar_cursos(driver)
+    print(cr.ver_cursos(cursos))
+    
 def extraer_evidencias(terminados):
     driver = config.configure()
     usuario, password = recuperar_credenciales()
@@ -158,7 +159,6 @@ if __name__ == '__main__':
         modo_uso()
         exit(1)
 
-
     if opcionL:            
         listar_cursos(terminados)
         exit(0)
@@ -169,17 +169,3 @@ if __name__ == '__main__':
 
     if opcionC:
         crear_credenciales()
-    
-    #cr.ir_a_cursos_terminados(driver)
-    #cursos = cr.regresar_cursos(driver)
-    #print(cr.ver_cursos(cursos))
-    #cr.extraer_evidencias_lista_cursos(driver, cursos, ['78671','84723'], '/tmp/evidencias', True)
-    #cr.extraer_evidencias_curso(driver, cursos, '94369', '/tmp/cibercrimen')
-    #cr.ir_a_curso(driver, cursos, '94368')
-    #ev.ir_a_evaluaciones(driver)
-    #ev.extraer_respuestas_evaluaciones_curso(driver, '/tmp/evaluaciones')
-    
-    #ac.ir_a_actividades(driver)
-    #ac.extraer_respuestas_actividades_curso(driver, '/tmp/actividades')
-    
-
