@@ -1,0 +1,3 @@
+cryptography
+bs4
+selenium
