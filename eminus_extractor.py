@@ -8,8 +8,6 @@ from sys import exit
 
 import login 
 import cursos as cr
-import evaluaciones as ev
-import actividades as ac
 import config
 import excepciones
 import cifrado

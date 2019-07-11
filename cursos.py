@@ -40,7 +40,7 @@ def ir_a_cursos_vigentes(driver):
         driver.get(URL_MAIN)
         try:
             WebDriverWait(driver, 10).until(
-                EC.text_to_be_present_in_element((By.ID, 'lblTotalCursos'), 'Mostrando'))
+                EC.presence_of_element_located((By.ID, 'lblTotalCursos')))
             time.sleep(1)
         except Exception as err:
             raise excepciones.CursosException('No se pudo regresar a los cursos vigentes')
@@ -138,7 +138,7 @@ def regresar_a_curso(driver, pk, terminados=False):
     assert driver.current_url == URL_MAIN
     try:
         WebDriverWait(driver, 10).until(
-            EC.text_to_be_present_in_element((By.ID, 'lblTotalCursos'), 'Mostrando'))
+            EC.presence_of_element_located((By.ID, 'lblTotalCursos')))
         time.sleep(1)
     except:
         raise excepciones.CursosException('No se puede regresar al curso')
@@ -176,7 +176,7 @@ def extraer_evidencias_lista_cursos(driver, cursos, lista, ruta, terminados=Fals
         driver.get(URL_MAIN)
         try:
             WebDriverWait(driver, 10).until(
-                EC.text_to_be_present_in_element((By.ID, 'lblTotalCursos'), 'Mostrando'))
+                EC.presence_of_element_located((By.ID, 'lblTotalCursos')))
             time.sleep(1)
         except:
             raise excepciones.CursosException('No se pudo refrescar página de cursos')
