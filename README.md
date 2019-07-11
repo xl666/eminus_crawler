@@ -6,6 +6,8 @@ Requerimientos de sistema:
 
 -pip3
 
+-chrome/chromium
+
 Instalación
 
 -clonar repositorio: 
