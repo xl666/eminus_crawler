@@ -1,5 +1,6 @@
 
 import excepciones
+from sys import exit
 
 def manejar_errores_credenciales(fun):
     def interna(*args, **kwargs):

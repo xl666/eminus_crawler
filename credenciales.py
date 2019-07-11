@@ -3,8 +3,13 @@ import os
 import getpass
 import excepciones
 import cifrado
+import sys
 
 BASE_DIR = os.path.dirname((os.path.abspath(__file__)))
+# La ruta de ejecución cambia en un paquete frozen de pyinstaller
+if getattr(sys, 'frozen', False):
+    BASE_DIR = os.path.dirname(sys.executable)
+
 SALT = 'x_39'
 
 def guardar_credenciales(mensaje):

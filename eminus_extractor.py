@@ -4,6 +4,7 @@ import os
 import sys
 import getopt
 import getpass
+from sys import exit
 
 import login 
 import cursos as cr

@@ -1,3 +1,4 @@
 *~
 *.pyc
 *.cif
+/eminus_extractor.spec
