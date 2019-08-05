@@ -25,6 +25,9 @@ def modo_uso():
     print('    -d valor, --directorio=valor: opcional, directorio de salida (debe existir), por defecto directorio actual')
     print('    -e valor, --evidencias=valor: lista de ids de cursos a extraer evidencias')
     print('       se sigue el formato id1,id2,...,idn  sin espacios')
+    print('    -p valor, --procesos valor: número de procesos (por defecto 1) paralelos/concurrentes.\n       Sólo se puede explotar cuando se extraen evidencias de varios cursos simultaneamente.\n       Se debe considerar que entre más procesos se utiliza se mecesitará más memoria')
+    print('    ')
+
     print('')
     print('Ejemplos de uso:')
     print('')
@@ -39,6 +42,8 @@ def modo_uso():
     print('')
     print('Extraer evidencias de tres cursos terminados:')
     print('    eminus_extractor -e 1000,2000,3000 -t -d /tmp/evidencias')
+    print('Extraer evidencias de tres cursos terminados con tres procesos paralelos:')
+    print('    eminus_extractor -e 1000,2000,3000 -t -d /tmp/evidencias -p 3')
 
 def validar_ids(cadena):
     partes = cadena.split(',')
