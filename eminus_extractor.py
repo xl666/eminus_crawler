@@ -14,6 +14,7 @@ import cifrado
 import decoradores
 import credenciales
 import multiprocessing
+import salidas
 
 def modo_uso():
     print('eminus_extractor.py [OPCIONES]')
@@ -85,8 +86,9 @@ def listar_cursos(terminados=False):
     cursos = cr.regresar_cursos(driver)
     print(cr.ver_cursos(cursos))
 
-def run_process(terminados, idCurso, directorio, usuario, password):
+def run_process(terminados, idCurso, directorio, usuario, password, color=salidas.colores[0]):
     driver = config.configure()
+    salidas.color_default = color
     login.login(driver, usuario, password)
     if terminados:
         cr.ciclar_cursos_hasta_terminados(driver)
@@ -96,14 +98,17 @@ def run_process(terminados, idCurso, directorio, usuario, password):
     except KeyError as e:
         print('El id dado %s no existe, aseguráte de no estar usando el nrc, lista opciones de ids con -l o --listar, si es un curso terminado aseguráte de activar la opción -t' % e)
         exit(1)
+    salidas.imprimir_salida('Fin de extracción')
     
 @decoradores.manejar_errores_credenciales
 def extraer_evidencias(terminados, evidencias, directorio, procesos=1):
     usuario, password = credenciales.recuperar_credenciales()
     with multiprocessing.Pool(procesos) as pool:
-        pool.starmap(run_process, [(terminados, idCurso,
+        pool.starmap(run_process, [(terminados, evidencias[i],
                                     directorio, usuario,
-                                    password) for idCurso in evidencias])
+                                    password,
+                                    salidas.colores[i+1 % len(salidas.colores)])
+                                   for i in range(len(evidencias))])
     
 if __name__ == '__main__':
 

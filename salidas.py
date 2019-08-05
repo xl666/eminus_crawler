@@ -19,6 +19,8 @@ colores = (
     "\u001b[32;1m", # Bright Green
 )
 
+color_default = colores[0]
+
 class Coloreador():
     def __init__(self, color):
         self.color = color
@@ -29,13 +31,13 @@ class Coloreador():
     def __exit__(self, *args):
         print("\033[0m", end='')
 
-def imprimir_salida(texto, nivel=0, color=colores[0]):
+def imprimir_salida(texto, nivel=0):
     for i in range(nivel):
         print('  ', end='', file=config.salida)
-    with Coloreador(color):
+    with Coloreador(color_default):
         print(texto, file=config.salida)
 
 
 if __name__ == '__main__':
-    for c in colores:
-        imprimir_salida('Hola mundo', 0, c)
+    color_default = colores[1]
+    imprimir_salida('Hola')
