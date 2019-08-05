@@ -13,6 +13,7 @@ import excepciones
 import cifrado
 import decoradores
 import credenciales
+import multiprocessing
 
 def modo_uso():
     print('eminus_extractor.py [OPCIONES]')
@@ -79,19 +80,25 @@ def listar_cursos(terminados=False):
     cursos = cr.regresar_cursos(driver)
     print(cr.ver_cursos(cursos))
 
-@decoradores.manejar_errores_credenciales
-def extraer_evidencias(terminados):
+def run_process(terminados, idCurso, directorio, usuario, password):
     driver = config.configure()
-    usuario, password = credenciales.recuperar_credenciales()
     login.login(driver, usuario, password)
     if terminados:
         cr.ciclar_cursos_hasta_terminados(driver)
     cursos = cr.regresar_cursos(driver)
     try:
-        cr.extraer_evidencias_lista_cursos(driver, cursos, evidencias, directorio, terminados)
+        cr.extraer_evidencias_lista_cursos(driver, cursos, [idCurso], directorio, terminados)
     except KeyError as e:
         print('El id dado %s no existe, aseguráte de no estar usando el nrc, lista opciones de ids con -l o --listar, si es un curso terminado aseguráte de activar la opción -t' % e)
         exit(1)
+    
+@decoradores.manejar_errores_credenciales
+def extraer_evidencias(terminados, evidencias, directorio, procesos=1):
+    usuario, password = credenciales.recuperar_credenciales()
+    with multiprocessing.Pool(procesos) as pool:
+        pool.starmap(run_process, [(terminados, idCurso,
+                                    directorio, usuario,
+                                    password) for idCurso in evidencias])
     
 if __name__ == '__main__':
 
@@ -100,7 +107,7 @@ if __name__ == '__main__':
         exit(0)
         
     try:
-        options, remainder = getopt.getopt(sys.argv[1:], 'hcltd:e:', ['help', 'credenciales', 'listar', 'terminados', 'directorio=', 'evidencias='])
+        options, remainder = getopt.getopt(sys.argv[1:], 'hcltd:e:p:', ['help', 'credenciales', 'listar', 'terminados', 'directorio=', 'evidencias=', 'procesos='])
     except:
         modo_uso()
         exit(1)
@@ -112,11 +119,13 @@ if __name__ == '__main__':
     terminados = False
     directorio = '.'
     evidencias = []
+    procesos = 1
 
     opcionL = False
     opcionD = False
     opcionE = False
     opcionC = False
+    opcionP = False
     
     for opcion, valor in options:
         if opcion in ('-h', '--help'):
@@ -134,6 +143,12 @@ if __name__ == '__main__':
                 exit(1)
             opcionD = True
             directorio = valor
+        if opcion in ('-p', '--procesos'):
+            if not str.isdigit(valor) or int(valor) == 0 or int(valor) > config.MAX_PROCESS:
+                print('El número de procesos debe ser un número entero mayor a cero y menor a %s' % config.MAX_PROCESS)
+                exit(1)
+            opcionP = True
+            procesos = int(valor)
         if opcion in ('-e', '--evidencias'):
             if not validar_ids(valor):
                 print('Los ids deben ser números enteros separados por coma, sin espacios')
@@ -150,7 +165,7 @@ if __name__ == '__main__':
         exit(0)
 
     if opcionE:
-        extraer_evidencias(terminados)        
+        extraer_evidencias(terminados, evidencias, directorio, procesos)      
         exit(0)
 
     if opcionC:

@@ -5,9 +5,37 @@ de información en la aplicación
 
 import config
 
-def imprimir_salida(texto, nivel=0):
+colores = (
+    "\033[0m",   # End of color
+    "\033[36m",  # Cyan
+    "\033[91m",  # Red
+    "\033[35m",  # Magenta
+    "\033[32m",  # Green
+    "\033[33m",  # Yellow
+    "\u001b[34m", # Blue
+    "\u001b[33;1m", # Bright Yellow
+    "\u001b[36;1m", # Bright Cyan
+    "\u001b[31;1m", # Bright Red
+    "\u001b[32;1m", # Bright Green
+)
+
+class Coloreador():
+    def __init__(self, color):
+        self.color = color
+
+    def __enter__(self):
+        print(self.color, end='')
+
+    def __exit__(self, *args):
+        print("\033[0m", end='')
+
+def imprimir_salida(texto, nivel=0, color=colores[0]):
     for i in range(nivel):
-        print('  ', end='')
-    print(texto, file=config.salida)
+        print('  ', end='', file=config.salida)
+    with Coloreador(color):
+        print(texto, file=config.salida)
 
 
+if __name__ == '__main__':
+    for c in colores:
+        imprimir_salida('Hola mundo', 0, c)

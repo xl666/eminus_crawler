@@ -2,6 +2,8 @@ from selenium import webdriver
 import sys
 
 salida = sys.stdout
+MAX_PROCESS = 10 # Para el pull de procesos, no se recomienda más grande
+
 
 def configure():
     options = webdriver.ChromeOptions()
