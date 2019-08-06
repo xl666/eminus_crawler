@@ -5,6 +5,7 @@ import sys
 import getopt
 import getpass
 from sys import exit
+import time
 
 import login 
 import cursos as cr
@@ -15,6 +16,7 @@ import decoradores
 import credenciales
 import multiprocessing
 import salidas
+import recolectorArchivos
 
 def modo_uso():
     print('eminus_extractor.py [OPCIONES]')
@@ -98,17 +100,26 @@ def run_process(terminados, idCurso, directorio, usuario, password, color=salida
     except KeyError as e:
         print('El id dado %s no existe, aseguráte de no estar usando el nrc, lista opciones de ids con -l o --listar, si es un curso terminado aseguráte de activar la opción -t' % e)
         exit(1)
+    finally:
+        driver.close()
     salidas.imprimir_salida('Fin de extracción')
     
 @decoradores.manejar_errores_credenciales
 def extraer_evidencias(terminados, evidencias, directorio, procesos=1):
+    tiempo1 = time.time()
     usuario, password = credenciales.recuperar_credenciales()
+    despachador = recolectorArchivos.Despachador(usuario, password)
+    despachador.start()
     with multiprocessing.Pool(procesos) as pool:
         pool.starmap(run_process, [(terminados, evidencias[i],
                                     directorio, usuario,
                                     password,
                                     salidas.colores[i+1 % len(salidas.colores)])
                                    for i in range(len(evidencias))])
+    recolectorArchivos.COLA_MENSAJES.put(('exit','exit'))
+    despachador.join()
+    tiempo2 = time.time()
+    print('Extracción finalizada en {:.2f} segundos'.format(tiempo2 - tiempo1))
     
 if __name__ == '__main__':
 

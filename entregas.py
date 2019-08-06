@@ -133,7 +133,7 @@ def guardar_entrega_alumno(driver, texto, enlaces, ruta_salida, urlCurrent):
         almacenamiento.guardar_archivo('%s/%s' % (ruta_salida, 'texto_resputesta.txt'), texto)
 
     for enlace in enlaces:
-        almacenamiento.guardar_enlace(driver, enlace, ruta_salida)
+        almacenamiento.guardar_enlace(enlace, ruta_salida)
     
 
 

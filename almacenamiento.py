@@ -1,7 +1,7 @@
 
 import excepciones
+import recolectorArchivos
 
-import requests
 import os
 
 def crear_ruta(ruta_base, sub_dir):
@@ -26,13 +26,7 @@ def guardar_archivo(path, contenido):
     except:
         raise excepciones.RutaException('Hubo un problema al guardar %s' % path)
     
-def guardar_enlace(driver, enlace, ruta):
+def guardar_enlace(enlace, ruta):
     nombre, url = enlace
-    all_cookies = driver.get_cookies()
-    cookies = {}  
-    for s_cookie in all_cookies:
-        cookies[s_cookie["name"]] = s_cookie["value"]
-    
-    respuesta = requests.get(url, cookies=cookies)
-    with open('%s/%s' % (ruta, nombre), 'wb') as archivo:
-        archivo.write(respuesta.content)
+    salida = '%s/%s' % (ruta, nombre)
+    recolectorArchivos.COLA_MENSAJES.put((url, salida))
