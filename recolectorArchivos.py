@@ -27,16 +27,18 @@ class Despachador(multiprocessing.Process):
     def __init__(self, usuario, password):
         self.loop = asyncio.new_event_loop()
         self.cookies = extraer_cookies(usuario, password)
+        self.semaforo = asyncio.Semaphore(config.MAX_DOWNLOAD_CONNECTIONS)
         multiprocessing.Process.__init__(self)
 
 
     async def descargar(self, url, ruta):
         #salidas.imprimir_salida(f'Descargando en {ruta}', 4)
-        async with ClientSession(cookies=self.cookies) as session:
-            async with session.get(url=url) as respuesta:
-                datos = await respuesta.read()
-                async with aiofiles.open(ruta, 'wb') as archivo:
-                    await archivo.write(datos)
+        async with self.semaforo:
+            async with ClientSession(cookies=self.cookies) as session:
+                async with session.get(url=url) as respuesta:
+                    datos = await respuesta.read()
+                    async with aiofiles.open(ruta, 'wb') as archivo:
+                        await archivo.write(datos)
         #salidas.imprimir_salida(f'Se terminó de descargar en {ruta}', 4)
         
     def calendarizar_descargas(self):

@@ -3,7 +3,7 @@ import sys
 
 salida = sys.stdout
 MAX_PROCESS = 10 # Para el pull de procesos, no se recomienda más grande
-
+MAX_DOWNLOAD_CONNECTIONS = 30 # limirar para evitar DOS en servidor
 
 def configure():
     options = webdriver.ChromeOptions()
