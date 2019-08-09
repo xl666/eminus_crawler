@@ -19,10 +19,15 @@ Instalación
 
    pip3 install -r requeriments.txt
 
--Descargar Driver de chormium (Windows, ¿MacOS?) para selenium y colocarlo en el mismo direcotorio de clonación 
+-Descargar Driver de chormium (Windows, ¿MacOS?) para selenium y colocarlo en el mismo directorio de clonación, es importante revisar la versión actualmente instalada 
 https://chromedriver.chromium.org/downloads
 
    
 Modo de uso:
 
 python3 eminus_extractor.py -h 
+
+
+Por hacer:
+
+-Aun no se tiene soporte para extraer actividades y evaluaciones grupales
