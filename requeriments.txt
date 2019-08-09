@@ -1,4 +1,5 @@
 cryptography
 bs4
 selenium
-requests
+aiofiles
+aiohttp

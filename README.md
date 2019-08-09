@@ -18,7 +18,10 @@ Instalación
 -Instalar dependencias de python:
 
    pip3 install -r requeriments.txt
-   
+
+-Descargar Driver de chormium (Windows, ¿MacOS?) para selenium y colocarlo en el mismo direcotorio de clonación 
+https://chromedriver.chromium.org/downloads
+
    
 Modo de uso:
 
