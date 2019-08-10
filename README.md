@@ -26,8 +26,3 @@ https://chromedriver.chromium.org/downloads
 Modo de uso:
 
 python3 eminus_extractor.py -h 
-
-
-Por hacer:
-
--Aun no se tiene soporte para extraer actividades y evaluaciones grupales
