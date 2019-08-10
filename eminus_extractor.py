@@ -28,7 +28,7 @@ def modo_uso():
     print('    -d valor, --directorio=valor: opcional, directorio de salida (debe existir), por defecto directorio actual')
     print('    -e valor, --evidencias=valor: lista de ids de cursos a extraer evidencias')
     print('       se sigue el formato id1,id2,...,idn  sin espacios')
-    print('    -p valor, --procesos valor: número de procesos (por defecto 1) paralelos/concurrentes.\n       Sólo se puede explotar cuando se extraen evidencias de varios cursos simultaneamente.\n       Se debe considerar que entre más procesos se utiliza se mecesitará más memoria')
+    print('    -p valor, --procesos valor: número de procesos (por defecto 1) paralelos/concurrentes.\n       Sólo se puede explotar cuando se extraen evidencias de varios cursos simultaneamente.\n       Se debe considerar que entre más procesos se utiliza se necesitará más memoria')
     print('    ')
 
     print('')
