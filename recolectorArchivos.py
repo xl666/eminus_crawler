@@ -60,7 +60,7 @@ class Despachador(multiprocessing.Process):
 
     
     def run(self):
-        self.loop.set_debug(True)
+        #self.loop.set_debug(True)
         self.loop.create_task(self.wrapper())
         try:
             self.loop.run_forever()

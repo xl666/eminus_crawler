@@ -20,8 +20,9 @@ def ver_evaluaciones(driver, evaluaciones):
 def ir_a_evaluacion(driver, evaluacion):
     entregas.ir_a_entrega(driver, evaluacion, URL_EVALUACIONES)
 
-def regresar_alumnos_contestaron_evaluacion(driver):
-    return entregas.regresar_alumnos_contestaron_entrega(driver, URL_EVALUACIONES_ALUMNOS)
+def regresar_alumnos_contestaron_evaluacion(driver, grupo=False):
+    return entregas.regresar_alumnos_contestaron_entrega(driver, URL_EVALUACIONES_ALUMNOS, grupo)
+
 
 def ir_a_respuesta_alumno(driver, alumno):
     entregas.ir_a_respuesta_alumno(driver, alumno, URL_EVALUACIONES_ALUMNOS)
@@ -35,8 +36,8 @@ def regresar_enlaces_archivos_respuesta_alumno(driver):
 def crear_descripcion_evaluacion(driver, ruta_salida):
     entregas.crear_descripcion_entrega(driver, ruta_salida, URL_EVALUACIONES_ALUMNOS)
 
-def extraer_respuestas_evaluacion(driver, evaluacion, ruta_salida):
-    entregas.extraer_respuestas_entrega(driver, evaluacion, ruta_salida, URL_EVALUACIONES_ALUMNOS, URL_EVALUACIONES_ALUMNOS, URL_EVALUACION_DETALLE, 'Evaluaci')
+def extraer_respuestas_evaluacion(driver, evaluacion, ruta_salida, grupo=False):
+    entregas.extraer_respuestas_entrega(driver, evaluacion, ruta_salida, URL_EVALUACIONES_ALUMNOS, URL_EVALUACIONES_ALUMNOS, URL_EVALUACION_DETALLE, 'Evaluaci', grupo)
 
 def extraer_respuestas_evaluaciones_curso(driver, ruta_salida):
     entregas.extraer_respuestas_entregas_curso(driver, ruta_salida, URL_EVALUACIONES, URL_EVALUACIONES_ALUMNOS, URL_EVALUACION_DETALLE, 'Evaluación', 'slEvaluacion')

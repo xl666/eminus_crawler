@@ -24,8 +24,8 @@ def ver_actividades(driver, actividades):
 def ir_a_actividad(driver, actividad):
     entregas.ir_a_entrega(driver, actividad, URL_ACTIVIDADES)
 
-def regresar_alumnos_contestaron_actividad(driver):
-    return entregas.regresar_alumnos_contestaron_entrega(driver, URL_ACTIVIDADES_ALUMNOS)
+def regresar_alumnos_contestaron_actividad(driver, grupo=False):
+    return entregas.regresar_alumnos_contestaron_entrega(driver, URL_ACTIVIDADES_ALUMNOS, grupo)
         
 
 def ir_a_respuesta_alumno(driver, alumno):
@@ -44,8 +44,8 @@ def crear_descripcion_actividad(driver, ruta_salida):
     entregas.crear_descripcion_entrega(driver, ruta_salida, URL_ACTIVIDADES_ALUMNOS)
 
     
-def extraer_respuestas_actividad(driver, actividad, ruta_salida):
-    entregas.extraer_respuestas_entrega(driver, actividad, ruta_salida, URL_ACTIVIDADES, URL_ACTIVIDADES_ALUMNOS, URL_ACTIVIDAD_DETALLE, 'Actividad')
+def extraer_respuestas_actividad(driver, actividad, ruta_salida, grupo=False):
+    entregas.extraer_respuestas_entrega(driver, actividad, ruta_salida, URL_ACTIVIDADES, URL_ACTIVIDADES_ALUMNOS, URL_ACTIVIDAD_DETALLE, 'Actividad', grupo)
 
 
 def extraer_respuestas_actividades_curso(driver, ruta_salida):

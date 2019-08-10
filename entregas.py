@@ -39,7 +39,11 @@ def regresar_entregas(driver, urlCurrent, cssClassEntrega):
         entregas = driver.find_elements_by_class_name(cssClassEntrega)
         if i >= len(entregas):
             break
-        yield entregas[i]
+        tipo = entregas[i].find_element_by_class_name('fontEstud').get_attribute("textContent").strip()
+        if 'estudiante' in tipo:
+            yield entregas[i], False
+        else: # grupo
+            yield entregas[i], True
         i += 1
 
 def get_nombre_entrega(driver, entrega, urlCurrent):
@@ -70,9 +74,9 @@ def alumno_contesto_entrega(alumno):
     if test1 or test2:
         return True
     return False
-    
-    
-def regresar_alumnos_contestaron_entrega(driver, urlCurrent):
+        
+
+def regresar_alumnos_contestaron_entrega(driver, urlCurrent, grupo=False):
     """
     Regresa un generador con los elemenentos asociados a alumnos que contestaron a la entrega
     Tiene acoplamiento semantico con extraer_respuestas_entrega
@@ -81,25 +85,34 @@ def regresar_alumnos_contestaron_entrega(driver, urlCurrent):
     """
     assert driver.current_url == urlCurrent
     i = 0
+    
+    tag = 'DivContenedorDatos'
+    if grupo:
+        tag = 'DivGruposAct'
+        
     rehacer_lookup = True
     while True:
         # Es necesario hacerlo asi para evitar referencias stale
         if rehacer_lookup:
-            alumnos = driver.find_elements_by_class_name('DivContenedorDatos')
+            alumnos = driver.find_elements_by_class_name(tag)
         if i >= len(alumnos):
             break
         rehacer_lookup = False
         if alumno_contesto_entrega(alumnos[i]):
-            yield alumnos[i].get_attribute('id'), alumnos[i]
+            if not grupo:
+                yield alumnos[i].get_attribute('id'), alumnos[i]
+            else:
+                yield 'grupo %s' % (i + 1), alumnos[i]
             rehacer_lookup = True
         i += 1
 
+        
 def ir_a_respuesta_alumno(driver, alumno, urlCurrent):
     assert driver.current_url == urlCurrent
     alumno.click()
     try:
         WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.CLASS_NAME, 'contenedorIntegranteEnc')))
+            EC.presence_of_element_located((By.CLASS_NAME, 'section-evaluacion')))
     except:
         raise excepciones.EntregasException('No se pudo acceder al detalle de la entrega del alumno')
 
@@ -147,7 +160,7 @@ def crear_descripcion_entrega(driver, ruta_salida, urlCurrent):
     txt = texto.prettyfy(descripcion.get_attribute('innerHTML'))
     almacenamiento.guardar_archivo('%s/%s' % (ruta_salida, 'descripcion.txt'), txt)
 
-def extraer_respuestas_entrega(driver, entrega, ruta_salida, urlCurrent, urlStep2, urlStep3, etiqueta):
+def extraer_respuestas_entrega(driver, entrega, ruta_salida, urlCurrent, urlStep2, urlStep3, etiqueta, grupo=False):
     """
     Guarda todos los recursos de una entrega creando una estructura de directorios en ruta
     """
@@ -155,7 +168,7 @@ def extraer_respuestas_entrega(driver, entrega, ruta_salida, urlCurrent, urlStep
     ir_a_entrega(driver, entrega, urlCurrent)
     crear_screenshot_entrega(driver, ruta_salida, urlStep2)
     crear_descripcion_entrega(driver, ruta_salida, urlStep2)
-    for matricula, alumno in regresar_alumnos_contestaron_entrega(driver, urlStep2):
+    for matricula, alumno in regresar_alumnos_contestaron_entrega(driver, urlStep2, grupo):
         salidas.imprimir_salida('Extrayendo respuesta de %s' % matricula, 3)
         ruta_alumno = almacenamiento.crear_ruta(ruta_salida, matricula)
         ir_a_respuesta_alumno(driver, alumno, urlStep2)
@@ -177,11 +190,11 @@ def extraer_respuestas_entregas_curso(driver, ruta_salida, urlCurrent, urlStep2,
     """
     assert driver.current_url == urlCurrent
     index = 1
-    for entrega in regresar_entregas(driver, urlCurrent, cssClassEntrega):
+    for entrega, isGrupo in regresar_entregas(driver, urlCurrent, cssClassEntrega):
         nombre = str(index) + '.- ' + get_nombre_entrega(driver, entrega, urlCurrent)
         salidas.imprimir_salida('Extrayendo datos de %s: %s' % (etiqueta, nombre), 2)
         ruta_entrega = almacenamiento.crear_ruta(ruta_salida, nombre)
-        extraer_respuestas_entrega(driver, entrega, ruta_entrega, urlCurrent, urlStep2, urlStep3, etiqueta)
+        extraer_respuestas_entrega(driver, entrega, ruta_entrega, urlCurrent, urlStep2, urlStep3, etiqueta, isGrupo)
         driver.back()
         driver.refresh()
         index += 1
